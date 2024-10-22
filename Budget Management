@@ -1,0 +1,117 @@
+#include <stdio.h>
+#include <string.h>
+#define MAX_CATEGORIES 5
+typedef enum {
+ TRANSPORTATION,
+ ACCOMMODATION,
+ FOOD,
+ ACTIVITIES,
+ MISCELLANEOUS
+} Category;
+void displayMenu() {
+ printf("\nVacation Budget Planner\n");
+ printf("1. Set Destination\n");
+ printf("2. Set Budget\n");
+ printf("3. Allocate Funds\n");
+ printf("4. Display Budget\n");
+ printf("5. Exit\n");
+}
+void setDestination(char* destination) {
+ printf("Enter your vacation destination: ");
+ getchar(); // to consume the newline character left by previous scanf
+ fgets(destination, 100, stdin);
+ destination[strcspn(destination, "\n")] = '\0'; // Remove trailing newline
+}
+void setBudget(float* totalBudget) {
+ printf("Enter your total budget: $");
+ while (scanf("%f", totalBudget) != 1) {
+ printf("Invalid input. Please enter a valid number for budget: $");
+ while (getchar() != '\n'); // clear invalid input from buffer
+ }
+}
+void allocateFunds(float* categories, float totalBudget) {
+ float percentage;
+ float totalAllocatedPercentage;
+ while (1) { // Loop until valid allocation is made
+ totalAllocatedPercentage = 0; // Reset total allocated percentage
+ for (int i = 0; i < MAX_CATEGORIES; i++) {
+ printf("Enter percentage for ");
+ switch (i) {
+ case TRANSPORTATION:
+ printf("Transportation: ");
+ break;
+ case ACCOMMODATION:
+ printf("Accommodation: ");
+ break;
+ case FOOD:
+ printf("Food: ");
+ break;
+ case ACTIVITIES:
+ printf("Activities: ");
+ break;
+ case MISCELLANEOUS:
+ printf("Miscellaneous: ");
+ break;
+ }
+ while (scanf("%f", &percentage) != 1 || percentage < 0 || percentage > 100) {
+ printf("Invalid input. Please enter a valid percentage (0-100): ");
+ while (getchar() != '\n'); // clear invalid input from buffer
+ }
+ totalAllocatedPercentage += percentage; // Update total allocated percentage
+ categories[i] = (percentage / 100) * totalBudget; // Allocate funds based on input
+ }
+ // If total allocated percentage exceeds 100%, inform the user and start over
+ if (totalAllocatedPercentage > 100) {
+ printf("Total allocated percentage exceeds 100%%. Please adjust all entries.\n");
+ } else {
+ break; // Valid allocation made, exit loop
+ }
+ }
+}
+void displayBudget(float* categories, float totalBudget, char* destination) {
+ printf("\nBudget Breakdown for %s:\n", destination);
+ printf("Transportation: $%.2f\n", categories[TRANSPORTATION]);
+ printf("Accommodation: $%.2f\n", categories[ACCOMMODATION]);
+ printf("Food: $%.2f\n", categories[FOOD]);
+ printf("Activities: $%.2f\n", categories[ACTIVITIES]);
+ printf("Miscellaneous: $%.2f\n", categories[MISCELLANEOUS]);
+ printf("Total Budget: $%.2f\n", totalBudget);
+}
+int main() {
+ float totalBudget = 0;
+ float categories[MAX_CATEGORIES] = {0};
+ char destination[100] = "Unknown";
+ int choice;
+ do {
+ // Display current destination and budget before showing the menu
+ printf("\nCurrent Destination: %s\n", destination);
+ printf("Current Budget: $%.2f\n", totalBudget);
+ displayMenu();
+ printf("Enter your choice: ");
+ if (scanf("%d", &choice) != 1) {
+ printf("Invalid input. Please enter a valid number.\n");
+ while (getchar() != '\n'); // clear the invalid input from buffer
+ continue; // loop back to display the menu again
+ }
+ switch (choice) {
+ case 1:
+ setDestination(destination);
+ break;
+ case 2:
+ setBudget(&totalBudget);
+ break;
+ case 3:
+ allocateFunds(categories, totalBudget);
+ break;
+ case 4:
+ displayBudget(categories, totalBudget, destination);
+ break;
+ case 5:
+ printf("Exiting program...\n");
+ break;
+ default:
+ printf("Invalid choice. Please try again.\n");
+ }
+ } while (choice != 5);
+ return 0;
+}
